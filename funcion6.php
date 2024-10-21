@@ -9,7 +9,7 @@
 
 <body>
     <h2>Formulario de Encriptación / Desencriptación</h2>
-    <form action="funcion6Procesar.php" method="post">
+    <form action="EJERCICIO6Procesar.php" method="post">
         <label for="texto">Texto:</label><br>
         <input type="text" id="texto" name="texto" required><br><br>
 
