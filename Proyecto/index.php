@@ -103,15 +103,22 @@
         </form>
 
         <?php
-        //Borro el cache para que si desde la pagina siguiente retrocedes, la contraseña este vacia
+        session_start();
+
+        // Borrar el caché para que no guarde la contraseña en el navegador
         header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
         header("Cache-Control: post-check=0, pre-check=0", false);
         header("Pragma: no-cache");
 
-        //Si se manda el formulario hacer esto
-        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        // Si el usuario ya está logueado, redirigirlo a la página principal(necesario cerrar sesion para volver al login)
+        if (isset($_SESSION['usuario'])) {
+            header("Location: principal.php?usuario=" . $_SESSION['usuario']);
+            exit();
+        }
 
-            //Conexion a la base de datos
+        // Si se manda el formulario hacer esto
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            // Conexion a la base de datos
             $servername = "localhost";
             $username = "root";
             $password = "";
@@ -128,30 +135,49 @@
                 $usuario = $_POST['usuario'];
                 $pass = $_POST['pass'];
 
-                // Existe?
+                // Verificar si el usuario existe
                 $sql = "SELECT * FROM usuarios WHERE nombre_usuario = ?";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("s", $usuario);
                 $stmt->execute();
                 $result = $stmt->get_result();
 
-                //Si hay resultados
+                // Si hay resultados
                 if ($result->num_rows > 0) {
                     $row = $result->fetch_assoc();
+                    // Verificar la contraseña
                     if ($row["contrasena"] == $pass) {
+                        // Guardar el usuario en la sesión
+                        $_SESSION['usuario'] = $usuario;
+                        // Redirigir al usuario a la página principal
                         header("Location: principal.php?usuario=" . $usuario);
+                        exit();
                     } else {
                         echo '<div class="error-message">La contraseña no es válida.</div>';
                     }
                 }
-                //Si no hay resultados 
+                // Si no hay resultados
                 else {
-                    echo '<div class="error-message">Usuario inexistente </div>';
+                    $sql_insert = "INSERT INTO usuarios (nombre_usuario, contrasena) VALUES (?, ?)";
+                    $stmt_insert = $conn->prepare($sql_insert);
+                    $stmt_insert->bind_param("ss", $usuario, $pass);
+                    if ($stmt_insert->execute()) {
+                        echo "Nuevo usuario creado exitosamente.";
+                        $_SESSION['usuario'] = $usuario;
+                        header("Location: principal.php?usuario=" . $usuario);
+                        exit();
+                    } else {
+                        echo '<div class="error-message">Error al crear el usuario: ' . $stmt_insert->error . '</div>';
+                    }
+                    //Cierre de la conexion del insert
+                    $stmt_insert->close();
                 }
-                //Cierre de la conexion del select
+
+                // Cerrar la conexión del select
                 $stmt->close();
             }
-            //Cierre de la conexion a la base de datos
+
+            // Cerrar la conexión a la base de datos
             $conn->close();
         }
         ?>
