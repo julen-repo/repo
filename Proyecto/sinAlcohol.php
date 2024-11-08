@@ -168,19 +168,19 @@
 
         $conn = new mysqli($servername, $username, $password, $database);
 
-        $sql = "SELECT * FROM bebidas WHERE tiene_alcohol = 0 ORDER BY nombre_producto";
+        $sql = "SELECT * FROM bebidas WHERE tiene_alcohol = 0 ORDER BY nombre";
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
                 echo "<div class='bebida'>
                         <div style='flex: 1;'>
-                            <span>" . htmlspecialchars($row["nombre_producto"]) . "</span>
+                            <span>" . htmlspecialchars($row["nombre"]) . "</span>
                             <span class='precio'>$ " . number_format($row["precio"], 2) . "</span>
                         </div>
                         <div style='display: flex; align-items: center;'>
                             <input type='number' value='0' min='0' id='cantidad_" . $row["id"] . "' />
-                            <button onclick='comprar(" . $row["id"] . ",".$row["nombre_producto"].",".$row["precio"].")'>Comprar</button>
+                            <button onclick='comprar(" . $row["id"] . ",".$row["nombre"].",".$row["precio"].")'>Comprar</button>
                         </div>
                     </div>";
             }
