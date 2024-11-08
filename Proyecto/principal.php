@@ -123,7 +123,7 @@
     <h1>Lista de Categorías</h1>
     <ul>
         <li><a href="conAlcohol.php">Bebidas con alcohol</a></li>
-        <li><a href="index.php">Bebidas sin alcohol</a></li>
+        <li><a href="sinAlcohol.php">Bebidas sin alcohol</a></li>
         <li><a href="index.php">Comida</a></li>
     </ul>
 </body>
