@@ -135,13 +135,19 @@
             while ($row = $result->fetch_assoc()) {
                 $categoria_id = $row['id'];
                 $categoria_nombre = htmlspecialchars($row['nombre']);
-                echo "<li><a href='".$categoria_nombre.".php?id=$categoria_id'>$categoria_nombre</a></li>";
+
+                // Reemplazar los espacios por guiones y convertir todo a minúsculas para la URL
+                $categoria_nombre_url = strtolower(str_replace(' ', '-', $categoria_nombre));
+
+                // Crear el enlace con el nombre de archivo adecuado
+                echo "<li><a href='$categoria_nombre_url.php?id=$categoria_id'>$categoria_nombre</a></li>";
             }
         } else {
             echo "<li>No se encontraron categorías disponibles.</li>";
         }
         ?>
     </ul>
+
 </body>
 
 </html>
