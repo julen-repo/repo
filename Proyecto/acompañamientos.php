@@ -35,19 +35,19 @@ $categoria_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $categoria_nombre = '';
 switch ($categoria_id) {
     case 1:
-        $categoria_nombre = 'Bebidas con Alcohol';
+        $categoria_nombre = 'Entradas';
         break;
     case 2:
-        $categoria_nombre = 'Galletas';
+        $categoria_nombre = 'Paltos Principales';
         break;
     case 3:
-        $categoria_nombre = 'Postres';
+        $categoria_nombre = 'Bebidas';
         break;
     case 4:
-        $categoria_nombre = 'Ropa Deportiva';
+        $categoria_nombre = 'Postres';
         break;
     case 5:
-        $categoria_nombre = 'Accesorios Deportivos';
+        $categoria_nombre = 'Acompañamientos';
         break;
     default:
         $categoria_nombre = 'Productos';
