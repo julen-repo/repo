@@ -14,7 +14,6 @@
             font-family: Arial, sans-serif;
         }
 
-        /* Body Styling */
         body {
             background-color: #f4f4f9;
             color: #333;
@@ -24,7 +23,6 @@
             padding: 20px;
         }
 
-        /* Table Styling */
         table {
             width: 100%;
             max-width: 800px;
@@ -53,14 +51,12 @@
             background-color: #5A63E0;
         }
 
-        /* Heading Styling */
         h1 {
             font-size: 2rem;
             margin-bottom: 20px;
             color: #6B73FF;
         }
 
-        /* Bebidas List Styling */
         .bebidas-list {
             width: 100%;
             max-width: 800px;
@@ -90,7 +86,6 @@
             font-weight: bold;
         }
 
-        /* Input Number Styling */
         .bebida input[type="number"] {
             width: 60px;
             padding: 5px;
@@ -99,10 +94,8 @@
             border-radius: 4px;
             text-align: center;
             margin-right: 10px;
-            /* Space between input and button */
         }
 
-        /* Button Styling */
         .bebida button {
             padding: 10px 15px;
             background-color: #6B73FF;
@@ -118,7 +111,6 @@
             background-color: #5A63E0;
         }
 
-        /* Link Styling */
         a {
             text-decoration: none;
             color: #6B73FF;
@@ -134,47 +126,33 @@
 <body>
     <?php
     session_start();
-
-    // Redirigir si el usuario no ha iniciado sesión
     if (!isset($_SESSION['usuario'])) {
         header('Location: index.php');
         exit();
     }
-
-    // Cerrar sesión
     if (isset($_GET['logout']) && $_GET['logout'] == 'true') {
         session_destroy();
         header('Location: index.php');
         exit();
     }
-
-    // Nombre de usuario
     $usuario = $_SESSION['usuario'];
-
-    // Inicializar el carrito en la sesión
     if (!isset($_SESSION['carrito'])) {
         $_SESSION['carrito'] = [];
     }
-
-    // Agregar bebida al carrito
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['producto_id'])) {
         $producto_id = $_POST['producto_id'];
         $nombre = $_POST['nombre'];
         $precio = $_POST['precio'];
         $cantidad = $_POST['cantidad'];
-
-        // Validar cantidad
         if ($cantidad > 0) {
-            // Verificar si el producto ya está en el carrito
             $existe = false;
             foreach ($_SESSION['carrito'] as &$item) {
                 if ($item['id'] == $producto_id) {
-                    $item['cantidad'] += $cantidad; // Sumar cantidad
+                    $item['cantidad'] += $cantidad;
                     $existe = true;
                     break;
                 }
             }
-            // Si no está en el carrito, agregar nuevo
             if (!$existe) {
                 $_SESSION['carrito'][] = [
                     'id' => $producto_id,
@@ -200,7 +178,6 @@
 
     <div class="bebidas-list">
         <?php
-        // Conexión a la base de datos
         $servername = "localhost";
         $username = "root";
         $password = "";
@@ -212,17 +189,17 @@
             die("Conexión fallida: " . $conn->connect_error);
         }
 
-        // Consultar bebidas con alcohol
         $sql = "SELECT * FROM bebidas WHERE tiene_alcohol = 0 ORDER BY nombre";
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
-            // Mostrar cada bebida con un formulario para agregarla al carrito
             while ($row = $result->fetch_assoc()) {
                 echo "<div class='bebida'>
                         <form method='POST' action=''>
                             <div style='flex: 1;'>
-                                <span>" . htmlspecialchars($row["nombre"]) . "</span>
+                                <span>" . htmlspecialchars($row["nombre"]) . "</span><br>
+                                <span>Descripción: " . htmlspecialchars($row["descripcion"]) . "</span><br>
+                                <span>Stock: " . htmlspecialchars($row["stock"]) . "</span><br>
                                 <span class='precio'>$ " . number_format($row["precio"], 2) . "</span>
                             </div>
                             <input type='hidden' name='producto_id' value='" . $row["id"] . "'>
