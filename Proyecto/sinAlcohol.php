@@ -194,6 +194,7 @@
 
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
+                $stock = intval($row["stock"]); // Aseguramos que el stock sea un valor entero
                 echo "<div class='bebida'>
                         <form method='POST' action=''>
                             <div style='flex: 1;'>
@@ -206,7 +207,7 @@
                             <input type='hidden' name='nombre' value='" . htmlspecialchars($row["nombre"]) . "'>
                             <input type='hidden' name='precio' value='" . $row["precio"] . "'>
                             <div style='display: flex; align-items: center;'>
-                                <input type='number' name='cantidad' value='0' min='0' style='width: 60px; margin-right: 10px;' />
+                                <input type='number' name='cantidad' value='0' min='0' max='" . $stock . "' style='width: 60px; margin-right: 10px;' />
                                 <button type='submit'>Agregar al carrito</button>
                             </div>
                         </form>
@@ -215,6 +216,7 @@
         } else {
             echo "<div>No se encontraron bebidas con alcohol.</div>";
         }
+
 
         $conn->close();
         ?>
