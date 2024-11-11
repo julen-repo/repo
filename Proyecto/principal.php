@@ -115,7 +115,7 @@
         <tr>
             <th>Usuario: <?php echo htmlspecialchars($usuario); ?></th>
             <th><a href=<?php echo "principal.php?usuario=" . $usuario; ?>>Home</a></th>
-            <th><a href="index.php">Ver carrito</a></th>
+            <th><a href="carrito.php">Ver carrito</a></th>
             <th><a href="?logout=true">Cerrar sesión</a></th>
         </tr>
     </table>

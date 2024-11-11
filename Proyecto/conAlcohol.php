@@ -135,24 +135,63 @@
     <?php
     session_start();
 
+    // Redirigir si el usuario no ha iniciado sesión
     if (!isset($_SESSION['usuario'])) {
         header('Location: index.php');
         exit();
     }
 
+    // Cerrar sesión
     if (isset($_GET['logout']) && $_GET['logout'] == 'true') {
         session_destroy();
         header('Location: index.php');
         exit();
     }
 
+    // Nombre de usuario
     $usuario = $_SESSION['usuario'];
+
+    // Inicializar el carrito en la sesión
+    if (!isset($_SESSION['carrito'])) {
+        $_SESSION['carrito'] = [];
+    }
+
+    // Agregar bebida al carrito
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['producto_id'])) {
+        $producto_id = $_POST['producto_id'];
+        $nombre = $_POST['nombre'];
+        $precio = $_POST['precio'];
+        $cantidad = $_POST['cantidad'];
+
+        // Validar cantidad
+        if ($cantidad > 0) {
+            // Verificar si el producto ya está en el carrito
+            $existe = false;
+            foreach ($_SESSION['carrito'] as &$item) {
+                if ($item['id'] == $producto_id) {
+                    $item['cantidad'] += $cantidad; // Sumar cantidad
+                    $existe = true;
+                    break;
+                }
+            }
+            // Si no está en el carrito, agregar nuevo
+            if (!$existe) {
+                $_SESSION['carrito'][] = [
+                    'id' => $producto_id,
+                    'nombre' => $nombre,
+                    'precio' => $precio,
+                    'cantidad' => $cantidad
+                ];
+            }
+        }
+    }
     ?>
+
     <table>
         <tr>
             <th>Usuario: <?php echo htmlspecialchars($usuario); ?></th>
             <th><a href=<?php echo "principal.php?usuario=" . $usuario; ?>>Home</a></th>
-            <th><a href="index.php">Ver carrito</a></th>
+            <th><a href="carrito.php">Ver carrito</a></th>
             <th><a href="?logout=true">Cerrar sesión</a></th>
         </tr>
     </table>
@@ -161,6 +200,7 @@
 
     <div class="bebidas-list">
         <?php
+        // Conexión a la base de datos
         $servername = "localhost";
         $username = "root";
         $password = "";
@@ -168,39 +208,40 @@
 
         $conn = new mysqli($servername, $username, $password, $database);
 
+        if ($conn->connect_error) {
+            die("Conexión fallida: " . $conn->connect_error);
+        }
+
+        // Consultar bebidas con alcohol
         $sql = "SELECT * FROM bebidas WHERE tiene_alcohol = 1 ORDER BY nombre";
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
+            // Mostrar cada bebida con un formulario para agregarla al carrito
             while ($row = $result->fetch_assoc()) {
                 echo "<div class='bebida'>
-                        <div style='flex: 1;'>
-                            <span>" . htmlspecialchars($row["nombre"]) . "</span>
-                            <span class='precio'>$ " . number_format($row["precio"], 2) . "</span>
-                        </div>
-                        <div style='display: flex; align-items: center;'>
-                            <input type='number' value='0' min='0' id='cantidad_" . $row["id"] . "' />
-                            <button onclick='comprar(" . $row["id"] . ",".$row["nombre"].",".$row["precio"].")'>Comprar</button>
-                        </div>
+                        <form method='POST' action=''>
+                            <div style='flex: 1;'>
+                                <span>" . htmlspecialchars($row["nombre"]) . "</span>
+                                <span class='precio'>$ " . number_format($row["precio"], 2) . "</span>
+                            </div>
+                            <input type='hidden' name='producto_id' value='" . $row["id"] . "'>
+                            <input type='hidden' name='nombre' value='" . htmlspecialchars($row["nombre"]) . "'>
+                            <input type='hidden' name='precio' value='" . $row["precio"] . "'>
+                            <div style='display: flex; align-items: center;'>
+                                <input type='number' name='cantidad' value='0' min='0' style='width: 60px; margin-right: 10px;' />
+                                <button type='submit'>Agregar al carrito</button>
+                            </div>
+                        </form>
                     </div>";
             }
         } else {
             echo "<div>No se encontraron bebidas con alcohol.</div>";
         }
+
+        $conn->close();
         ?>
     </div>
-
-    <script>
-        function comprar(id,nombre,precio) {
-            var cantidad = document.getElementById('cantidad_' + id).value;
-            if (cantidad > 0) {
-                alert('Comprando ' + cantidad + ' unidades del producto ID: ' + nombre);
-                // Aquí podrías agregar código para procesar la compra (enviar a un carrito, etc.)
-            } else {
-                alert('Por favor, selecciona una cantidad mayor a 0.');
-            }
-        }
-    </script>
 </body>
 
 </html>
