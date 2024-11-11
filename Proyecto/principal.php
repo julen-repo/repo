@@ -140,7 +140,7 @@
                 $categoria_nombre_url = strtolower(str_replace(' ', '-', $categoria_nombre));
 
                 // Crear el enlace con el nombre de archivo adecuado
-                echo "<li><a href='$categoria_nombre_url.php?id=$categoria_id'>$categoria_nombre</a></li>";
+                echo "<li><a href='categoria.php?id=$categoria_id'>$categoria_nombre</a></li>";
             }
         } else {
             echo "<li>No se encontraron categorías disponibles.</li>";
