@@ -93,7 +93,6 @@
 
 <body>
     <?php
-
     session_start();
 
     // Verifica si el usuario está logueado, de lo contrario redirige a index.php
@@ -110,7 +109,15 @@
     }
 
     $usuario = $_SESSION['usuario'];
+
+    // Conexión a la base de datos
+    require 'conexion.php'; // Asegúrate de tener este archivo para la conexión
+
+    // Consulta a la base de datos para obtener las categorías
+    $query = "SELECT id, nombre FROM categorias";
+    $result = $conexion->query($query);
     ?>
+
     <table>
         <tr>
             <th>Usuario: <?php echo htmlspecialchars($usuario); ?></th>
@@ -122,9 +129,18 @@
 
     <h1>Lista de Categorías</h1>
     <ul>
-        <li><a href="conAlcohol.php">Bebidas con alcohol</a></li>
-        <li><a href="sinAlcohol.php">Bebidas sin alcohol</a></li>
-        <li><a href="index.php">Comida</a></li>
+        <?php
+        // Itera sobre cada categoría para crear un enlace dinámico
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $categoria_id = $row['id'];
+                $categoria_nombre = htmlspecialchars($row['nombre']);
+                echo "<li><a href='".$categoria_nombre.".php?id=$categoria_id'>$categoria_nombre</a></li>";
+            }
+        } else {
+            echo "<li>No se encontraron categorías disponibles.</li>";
+        }
+        ?>
     </ul>
 </body>
 
