@@ -39,7 +39,7 @@ function obtenerProductosPorCategoria($categoria_id)
 }
 
 // Función para agregar productos al carrito
-function agregarAlCarrito($producto_id, $nombre, $precio, $cantidad)
+function agregarAlCarrito($producto_id, $nombre, $precio, $cantidad, $stock)
 {
     if ($cantidad > 0) {
         if (!isset($_SESSION['carrito'])) {
@@ -49,9 +49,15 @@ function agregarAlCarrito($producto_id, $nombre, $precio, $cantidad)
         $existe = false;
         foreach ($_SESSION['carrito'] as &$item) {
             if ($item['id'] == $producto_id) {
-                $item['cantidad'] += $cantidad;
-                $existe = true;
-                break;
+                if($item['cantidad']>=$item['stock']){
+                    $item['cantidad'] += 0;
+                    $existe = true;
+                    break;  
+                }else{
+                    $item['cantidad'] += $cantidad;
+                    $existe = true;
+                    break;   
+                }
             }
         }
 
@@ -60,7 +66,8 @@ function agregarAlCarrito($producto_id, $nombre, $precio, $cantidad)
                 'id' => $producto_id,
                 'nombre' => $nombre,
                 'precio' => $precio,
-                'cantidad' => $cantidad
+                'cantidad' => $cantidad,
+                'stock' => $stock
             ];
         }
     }

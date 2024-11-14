@@ -24,8 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['producto_id'])) {
     $nombre = $_POST['nombre'];
     $precio = $_POST['precio'];
     $cantidad = $_POST['cantidad'];
+    $stock = $_POST['stock'];
 
-    agregarAlCarrito($producto_id, $nombre, $precio, $cantidad);
+    agregarAlCarrito($producto_id, $nombre, $precio, $cantidad, $stock);
 }
 
 // Obtener el ID de la categoría desde la URL
@@ -210,6 +211,7 @@ switch ($categoria_id) {
                         <input type='hidden' name='producto_id' value='" . $row["id"] . "'>
                         <input type='hidden' name='nombre' value='" . htmlspecialchars($row["nombre"]) . "'>
                         <input type='hidden' name='precio' value='" . $row["precio"] . "'>
+                        <input type='hidden' name='stock' value='" . $row["stock"] . "'>
                         <div style='display: flex; align-items: center;'>
                             <input type='number' name='cantidad' value='0' min='0' max='" . $row["stock"] . "' style='width: 60px; margin-right: 10px;' />
                             <button type='submit'>Agregar al carrito</button>
