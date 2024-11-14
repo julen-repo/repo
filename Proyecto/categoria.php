@@ -200,28 +200,29 @@ switch ($categoria_id) {
         if (count($productos) > 0) {
             foreach ($productos as $row) {
                 echo "<div class='producto'>
-                        <form method='POST' action=''>
-                            <div style='flex: 1;'>
-                                <span>" . htmlspecialchars($row["nombre"]) . "</span><br>
-                                <span>Descripción: " . htmlspecialchars($row["descripcion"]) . "</span><br>
-                                <span>Stock: " . htmlspecialchars($row["stock"]) . "</span><br>
-                                <span class='precio'>$ " . number_format($row["precio"], 2) . "</span>
-                            </div>
-                            <input type='hidden' name='producto_id' value='" . $row["id"] . "'>
-                            <input type='hidden' name='nombre' value='" . htmlspecialchars($row["nombre"]) . "'>
-                            <input type='hidden' name='precio' value='" . $row["precio"] . "'>
-                            <div style='display: flex; align-items: center;'>
-                                <input type='number' name='cantidad' value='0' min='0' style='width: 60px; margin-right: 10px;' />
-                                <button type='submit'>Agregar al carrito</button>
-                            </div>
-                        </form>
-                    </div>";
+                    <form method='POST' action=''>
+                        <div style='flex: 1;'>
+                            <span>" . htmlspecialchars($row["nombre"]) . "</span><br>
+                            <span>Descripción: " . htmlspecialchars($row["descripcion"]) . "</span><br>
+                            <span>Stock: " . htmlspecialchars($row["stock"]) . "</span><br>
+                            <span class='precio'>$ " . number_format($row["precio"], 2) . "</span>
+                        </div>
+                        <input type='hidden' name='producto_id' value='" . $row["id"] . "'>
+                        <input type='hidden' name='nombre' value='" . htmlspecialchars($row["nombre"]) . "'>
+                        <input type='hidden' name='precio' value='" . $row["precio"] . "'>
+                        <div style='display: flex; align-items: center;'>
+                            <input type='number' name='cantidad' value='0' min='0' max='" . $row["stock"] . "' style='width: 60px; margin-right: 10px;' />
+                            <button type='submit'>Agregar al carrito</button>
+                        </div>
+                    </form>
+                </div>";
             }
         } else {
             echo "<div>No se encontraron productos en esta categoría.</div>";
         }
         ?>
     </div>
+
 </body>
 
 </html>

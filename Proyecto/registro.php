@@ -155,7 +155,7 @@
                 // Si el usuario no existe, proceder a la creación
                 $sql_insert = "INSERT INTO usuarios (nombre_usuario, contrasena) VALUES (?, ?)";
                 $stmt_insert = $conn->prepare($sql_insert);
-                $stmt_insert->bind_param("ss", $usuario, $pass);
+                $stmt_insert->bind_param("ss", $usuario, password_hash($pass,PASSWORD_BCRYPT));
 
                 if ($stmt_insert->execute()) {
                     echo "Nuevo usuario creado exitosamente.";

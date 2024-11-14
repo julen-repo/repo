@@ -158,7 +158,7 @@
                 if ($result->num_rows > 0) {
                     $row = $result->fetch_assoc();
                     // Verificar la contraseña
-                    if ($row["contrasena"] == $pass) {
+                    if (password_verify($pass,$row['contrasena'])) {
                         // Guardar el usuario en la sesión
                         $_SESSION['usuario'] = $usuario;
                         // Redirigir al usuario a la página principal

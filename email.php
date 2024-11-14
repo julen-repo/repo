@@ -5,7 +5,6 @@ use PHPMailer\PHPMailer\SMTP;
 
 require 'vendor/autoload.php';
 
-$contra = 'gliscor6';
 ?>
 <!DOCTYPE html>
 <html lang="en">

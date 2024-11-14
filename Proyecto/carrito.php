@@ -214,8 +214,6 @@
         echo "</form>";
     }
     ?>
-
-    <p><a href="principal.php">Continuar comprando</a></p>
 </body>
 
 </html>
