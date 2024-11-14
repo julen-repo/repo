@@ -49,26 +49,35 @@ function agregarAlCarrito($producto_id, $nombre, $precio, $cantidad, $stock)
         $existe = false;
         foreach ($_SESSION['carrito'] as &$item) {
             if ($item['id'] == $producto_id) {
-                if($item['cantidad']>=$item['stock']){
-                    $item['cantidad'] += 0;
+                // Verificar si la cantidad solicitada excede el stock disponible
+                if ($item['cantidad'] + $cantidad > $item['stock']) {
+                    // Almacenar mensaje de límite de stock alcanzado específico para este producto
+                    $_SESSION['mensaje'][$producto_id] = "Has alcanzado el límite del stock para el producto: " . htmlspecialchars($item["nombre"]);
                     $existe = true;
-                    break;  
-                }else{
+                    break;
+                } else {
+                    // Agregar la cantidad solicitada al producto existente en el carrito
                     $item['cantidad'] += $cantidad;
                     $existe = true;
-                    break;   
+                    break;
                 }
             }
         }
 
+        // Si el producto no está en el carrito, agregarlo como un nuevo elemento
         if (!$existe) {
-            $_SESSION['carrito'][] = [
-                'id' => $producto_id,
-                'nombre' => $nombre,
-                'precio' => $precio,
-                'cantidad' => $cantidad,
-                'stock' => $stock
-            ];
+            if ($cantidad <= $stock) {
+                $_SESSION['carrito'][] = [
+                    'id' => $producto_id,
+                    'nombre' => $nombre,
+                    'precio' => $precio,
+                    'cantidad' => $cantidad,
+                    'stock' => $stock
+                ];
+            } else {
+                // Mensaje de error si la cantidad inicial solicitada excede el stock
+                $_SESSION['mensaje'][$producto_id] = "Cantidad solicitada excede el stock disponible para el producto: " . htmlspecialchars($nombre);
+            }
         }
     }
 }

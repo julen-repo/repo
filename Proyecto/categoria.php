@@ -178,6 +178,18 @@ switch ($categoria_id) {
         a:hover {
             color: #5A63E0;
         }
+
+        /* Estilo para el mensaje de advertencia */
+        .mensaje-advertencia {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            font-weight: bold;
+            max-width: 300px;
+        }
     </style>
 </head>
 
@@ -214,7 +226,15 @@ switch ($categoria_id) {
                         <input type='hidden' name='stock' value='" . $row["stock"] . "'>
                         <div style='display: flex; align-items: center;'>
                             <input type='number' name='cantidad' value='0' min='0' max='" . $row["stock"] . "' style='width: 60px; margin-right: 10px;' />
-                            <button type='submit'>Agregar al carrito</button>
+                            <button type='submit'>Agregar al carrito</button>";
+
+                // Mostrar mensaje de advertencia solo para el producto actual si existe en sesión
+                if (isset($_SESSION['mensaje'][$row["id"]])) {
+                    echo "<div class='mensaje-advertencia'>" . htmlspecialchars($_SESSION['mensaje'][$row["id"]]) . "</div>";
+                    unset($_SESSION['mensaje'][$row["id"]]); // Limpiar mensaje después de mostrarlo
+                }
+
+                echo "
                         </div>
                     </form>
                 </div>";
