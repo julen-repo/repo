@@ -141,6 +141,21 @@
         .clear-cart-button:hover {
             background-color: #e65a5a;
         }
+
+        .delete-button {
+            padding: 8px 12px;
+            background-color: #ff6b6b;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .delete-button:hover {
+            background-color: #e65a5a;
+        }
     </style>
 </head>
 
@@ -160,8 +175,26 @@
     }
 
     $usuario = $_SESSION['usuario'];
-    ?>
 
+    // Eliminar un producto individualmente
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_product_id'])) {
+        $delete_id = $_POST['delete_product_id'];
+        foreach ($_SESSION['carrito'] as $key => $item) {
+            if ($item['id'] == $delete_id) {
+                unset($_SESSION['carrito'][$key]); // Eliminar el producto del carrito
+                break;
+            }
+        }
+        // Reindexar el array para evitar problemas
+        $_SESSION['carrito'] = array_values($_SESSION['carrito']);
+    }
+
+    // Limpiar el carrito si el botón de borrar es presionado
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['clear_cart'])) {
+        $_SESSION['carrito'] = [];
+    }
+
+    ?>
     <table>
         <tr>
             <th>Usuario: <?php echo htmlspecialchars($usuario); ?></th>
@@ -174,11 +207,6 @@
     <h1>Carrito de Compras</h1>
 
     <?php
-    // Limpiar el carrito si el botón de borrar es presionado
-    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['clear_cart'])) {
-        $_SESSION['carrito'] = [];
-    }
-
     if (!isset($_SESSION['carrito']) || count($_SESSION['carrito']) == 0) {
         echo "<div class='empty-cart'>El carrito está vacío.</div>";
     } else {
@@ -189,6 +217,7 @@
                     <th>Precio</th>
                     <th>Cantidad</th>
                     <th>Total</th>
+                    <th>Acciones</th>
                 </tr>";
 
         $total = 0;
@@ -202,12 +231,19 @@
                     <td>$ " . number_format($item['precio'], 2) . "</td>
                     <td>" . $item['cantidad'] . "</td>
                     <td>$ " . number_format($subtotal, 2) . "</td>
+                    <td>
+                        <form method='POST' style='display:inline;'>
+                            <input type='hidden' name='delete_product_id' value='" . $item['id'] . "'>
+                            <button type='submit' class='delete-button'>Eliminar</button>
+                        </form>
+                    </td>
                   </tr>";
         }
 
         echo "<tr class='total-row'>
                 <td colspan='3'>Total</td>
                 <td>$ " . number_format($total, 2) . "</td>
+                <td></td>
               </tr>
               </table>
               <button type='submit' name='clear_cart' class='clear-cart-button'>Borrar carrito</button>";
