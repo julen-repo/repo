@@ -2,6 +2,7 @@
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use PayPalCheckoutSdk\Orders\OrdersCreateRequest;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -184,6 +185,8 @@ use PHPMailer\PHPMailer\Exception;
 
     $usuario = $_SESSION['usuario'];
 
+    require 'paypal_config.php'; // Configuración de PayPal
+
     // Eliminar un producto individualmente
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_product_id'])) {
         $delete_id = $_POST['delete_product_id'];
@@ -196,38 +199,64 @@ use PHPMailer\PHPMailer\Exception;
         $_SESSION['carrito'] = array_values($_SESSION['carrito']); // Reindexar el array
     }
 
-
-    // Enviar correo de confirmación
+    // Procesar el pago con PayPal
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['send_confirmation_email'])) {
-        require 'C:\xampp\htdocs\repo\Proyecto\vendor\autoload.php';
+        $client = PayPalClient::client();
 
-        $mail = new PHPMailer(true);
+        $items = [];
+        $total = 0;
+
+        foreach ($_SESSION['carrito'] as $producto) {
+            $subtotal = $producto['precio'] * $producto['cantidad'];
+            $total += $subtotal;
+
+            $items[] = [
+                'name' => $producto['nombre'],
+                'unit_amount' => [
+                    'currency_code' => 'USD',
+                    'value' => $producto['precio']
+                ],
+                'quantity' => $producto['cantidad']
+            ];
+        }
+
+        $request = new OrdersCreateRequest();
+        $request->prefer('return=representation');
+        $request->body = [
+            'intent' => 'CAPTURE',
+            'purchase_units' => [[
+                'amount' => [
+                    'currency_code' => 'USD',
+                    'value' => number_format($total, 2, '.', ''),
+                    'breakdown' => [
+                        'item_total' => [
+                            'currency_code' => 'USD',
+                            'value' => number_format($total, 2, '.', '')
+                        ]
+                    ]
+                ],
+                'items' => $items
+            ]],
+            'application_context' => [
+                'return_url' => 'http://localhost/tu-proyecto/pago_completado.php',
+                'cancel_url' => 'http://localhost/tu-proyecto/pago_cancelado.php'
+            ]
+        ];
+
         try {
-            // Configuración SMTP
-            $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = 'dwesad001@gmail.com'; // Cambia a tu correo
-            $mail->Password = 'fosj djcg qeeo pnpw';       // Cambia a tu contraseña o token de aplicación
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
+            $response = $client->execute($request);
 
-            // Configuración del correo
-            $mail->setFrom('dwesad001@gmail.com', 'Carrito de Compras');
-            $mail->addAddress($usuario); // Correo de destino
-            $mail->Subject = 'Confirmación de compra';
-            $mail->Body = "Hola $usuario, esta es una confirmación de que tu carrito ha sido procesado.";
-
-            // Enviar correo
-            $mail->send();
-            echo "<div style='color: green;'>Correo de confirmación enviado correctamente.</div>";
-            $_SESSION['carrito'] = [];
+            // Obtener la URL de aprobación del pago
+            foreach ($response->result->links as $link) {
+                if ($link->rel === 'approve') {
+                    header("Location: " . $link->href);
+                    exit();
+                }
+            }
         } catch (Exception $e) {
-            echo "<div style='color: red;'>Error al enviar el correo: {$mail->ErrorInfo}</div>";
+            echo "<div style='color: red;'>Error al procesar el pago: {$e->getMessage()}</div>";
         }
     }
-
-    // Agregar el código del pago de PayPal
     ?>
 
 
@@ -244,8 +273,6 @@ use PHPMailer\PHPMailer\Exception;
     <h1>Carrito de Compras</h1>
 
     <?php
-    // En lugar de enviar un correo al hacer clic en "Enviar confirmación",
-    // mostramos un botón de pago de PayPal.
     if (!isset($_SESSION['carrito']) || count($_SESSION['carrito']) == 0) {
         echo "<div class='empty-cart'>El carrito está vacío.</div>";
     } else {
@@ -287,19 +314,8 @@ use PHPMailer\PHPMailer\Exception;
           </table>
           </form>";
 
-        // Botón de PayPal
-        echo "<form action='https://www.paypal.com/cgi-bin/webscr' method='post' target='_blank'>
-            <!-- Parámetros requeridos -->
-            <input type='hidden' name='cmd' value='_xclick'>
-            <input type='hidden' name='business' value='tu-correo-paypal@example.com'>
-            <input type='hidden' name='item_name' value='Compra en Carrito'>
-            <input type='hidden' name='amount' value='" . number_format($total, 2, '.', '') . "'>
-            <input type='hidden' name='currency_code' value='USD'>
-            <input type='hidden' name='return' value='http://localhost/repo/Proyecto/gracias.php'>
-            <input type='hidden' name='cancel_return' value='http://localhost/repo/Proyecto/cancelado.php'>
-
-            <!-- Botón de PayPal -->
-            <button type='submit' class='enviar-pago-confirmacion'>Pagar con PayPal</button>
+        echo "<form method='POST'>
+            <button type='submit' name='send_confirmation_email' class='enviar-pago-confirmacion'>Proceder al pago con PayPal</button>
           </form>";
     }
     ?>

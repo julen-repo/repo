@@ -1,2 +1,2 @@
 <?php
-echo "alava catalan";
+echo "<div style='color: red;'>El pago ha sido cancelado.</div>";
