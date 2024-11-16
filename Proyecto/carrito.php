@@ -295,8 +295,8 @@ use PHPMailer\PHPMailer\Exception;
             <input type='hidden' name='item_name' value='Compra en Carrito'>
             <input type='hidden' name='amount' value='" . number_format($total, 2, '.', '') . "'>
             <input type='hidden' name='currency_code' value='USD'>
-            <input type='hidden' name='return' value='https://tu-dominio.com/gracias.php'>
-            <input type='hidden' name='cancel_return' value='https://tu-dominio.com/cancelado.php'>
+            <input type='hidden' name='return' value='http://localhost/repo/Proyecto/gracias.php'>
+            <input type='hidden' name='cancel_return' value='http://localhost/repo/Proyecto/cancelado.php'>
 
             <!-- Botón de PayPal -->
             <button type='submit' class='enviar-pago-confirmacion'>Pagar con PayPal</button>
