@@ -11,7 +11,7 @@ use PHPMailer\PHPMailer\Exception;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carrito de Compras</title>
     <style>
-        /* General Reset */
+        /* Reset del ccs general */
         * {
             margin: 0;
             padding: 0;
@@ -19,7 +19,7 @@ use PHPMailer\PHPMailer\Exception;
             font-family: Arial, sans-serif;
         }
 
-        /* Body Styling */
+        /* Estilo del body */
         body {
             background-color: #f4f4f9;
             color: #333;
@@ -29,7 +29,7 @@ use PHPMailer\PHPMailer\Exception;
             padding: 20px;
         }
 
-        /* Table Styling */
+        /* Estilo de la tabla */
         table {
             width: 100%;
             max-width: 800px;
@@ -58,14 +58,14 @@ use PHPMailer\PHPMailer\Exception;
             background-color: #5A63E0;
         }
 
-        /* Heading Styling */
+        /* Estilo cabecera */
         h1 {
             font-size: 2rem;
             margin-bottom: 20px;
             color: #6B73FF;
         }
 
-        /* Cart Table Styling */
+        /* Estilo de la carta */
         .cart-table {
             width: 100%;
             max-width: 800px;
@@ -98,7 +98,7 @@ use PHPMailer\PHPMailer\Exception;
             border-bottom: none;
         }
 
-        /* Total Styling */
+        /* Estilo del total */
         .total-row td {
             font-weight: bold;
             font-size: 1.2rem;
@@ -109,7 +109,7 @@ use PHPMailer\PHPMailer\Exception;
             color: #6B73FF;
         }
 
-        /* Link Styling */
+        /* Estilos de los links */
         a {
             text-decoration: none;
             color: #6B73FF;
@@ -120,7 +120,7 @@ use PHPMailer\PHPMailer\Exception;
             color: #5A63E0;
         }
 
-        /* Empty Cart Message */
+        /* Mensaje de vacio */
         .empty-cart {
             background-color: #fff;
             padding: 20px;
@@ -131,8 +131,8 @@ use PHPMailer\PHPMailer\Exception;
             color: #333;
         }
 
-        /* Clear Cart Button */
-        .clear-cart-button {
+        /* Boton enviar */
+        .enviar-pago-confirmacion {
             padding: 10px 20px;
             background-color: #ff6b6b;
             color: #fff;
@@ -143,7 +143,7 @@ use PHPMailer\PHPMailer\Exception;
             transition: background-color 0.3s ease;
         }
 
-        .clear-cart-button:hover {
+        .enviar-pago-confirmacion:hover {
             background-color: #e65a5a;
         }
 
@@ -196,16 +196,10 @@ use PHPMailer\PHPMailer\Exception;
         $_SESSION['carrito'] = array_values($_SESSION['carrito']); // Reindexar el array
     }
 
-    // Borrar el carrito completo
-    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['clear_cart'])) {
-        unset($_SESSION['carrito']);
-    }
 
     // Enviar correo de confirmación
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['send_confirmation_email'])) {
-        require 'C:\xampp\htdocs\repo\vendor\phpmailer\phpmailer\src\Exception.php';
-        require 'C:\xampp\htdocs\repo\vendor\phpmailer\phpmailer\src\PHPMailer.php';
-        require 'C:\xampp\htdocs\repo\vendor\phpmailer\phpmailer\src\SMTP.php';
+        require 'C:\xampp\htdocs\repo\Proyecto\vendor\autoload.php';
 
         $mail = new PHPMailer(true);
         try {
@@ -220,13 +214,14 @@ use PHPMailer\PHPMailer\Exception;
 
             // Configuración del correo
             $mail->setFrom('dwesad001@gmail.com', 'Carrito de Compras');
-            $mail->addAddress('julenalonso6@gmail.com'); // Correo de destino
+            $mail->addAddress($usuario); // Correo de destino
             $mail->Subject = 'Confirmación de compra';
             $mail->Body = "Hola $usuario, esta es una confirmación de que tu carrito ha sido procesado.";
 
             // Enviar correo
             $mail->send();
             echo "<div style='color: green;'>Correo de confirmación enviado correctamente.</div>";
+            $_SESSION['carrito'] = [];
         } catch (Exception $e) {
             echo "<div style='color: red;'>Error al enviar el correo: {$mail->ErrorInfo}</div>";
         }
@@ -249,18 +244,20 @@ use PHPMailer\PHPMailer\Exception;
     <h1>Carrito de Compras</h1>
 
     <?php
+    // En lugar de enviar un correo al hacer clic en "Enviar confirmación",
+    // mostramos un botón de pago de PayPal.
     if (!isset($_SESSION['carrito']) || count($_SESSION['carrito']) == 0) {
         echo "<div class='empty-cart'>El carrito está vacío.</div>";
     } else {
-        echo "<form method='POST'>";
+        echo "<form method='POST'>"; // Form principal para la tabla.
         echo "<table class='cart-table'>
-                <tr>
-                    <th>Producto</th>
-                    <th>Precio</th>
-                    <th>Cantidad</th>
-                    <th>Total</th>
-                    <th>Acciones</th>
-                </tr>";
+            <tr>
+                <th>Producto</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Total</th>
+                <th>Acciones</th>
+            </tr>";
 
         $total = 0;
 
@@ -269,32 +266,41 @@ use PHPMailer\PHPMailer\Exception;
             $total += $subtotal;
 
             echo "<tr>
-                    <td>" . htmlspecialchars($item['nombre']) . "</td>
-                    <td>$ " . number_format($item['precio'], 2) . "</td>
-                    <td>" . $item['cantidad'] . "</td>
-                    <td>$ " . number_format($subtotal, 2) . "</td>
-                    <td>
-                        <form method='POST' style='display:inline;'>
-                            <input type='hidden' name='delete_product_id' value='" . $item['id'] . "'>
-                            <button type='submit' class='delete-button'>Eliminar</button>
-                        </form>
-                    </td>
-                  </tr>";
+                <td>" . htmlspecialchars($item['nombre']) . "</td>
+                <td>$ " . number_format($item['precio'], 2) . "</td>
+                <td>" . $item['cantidad'] . "</td>
+                <td>$ " . number_format($subtotal, 2) . "</td>
+                <td>
+                    <form method='POST' style='display:inline;'>
+                        <input type='hidden' name='delete_product_id' value='" . $item['id'] . "'>
+                        <button type='submit' class='delete-button'>Eliminar</button>
+                    </form>
+                </td>
+              </tr>";
         }
 
         echo "<tr class='total-row'>
-                <td colspan='3'>Total</td>
-                <td>$ " . number_format($total, 2) . "</td>
-                <td></td>
-              </tr>
-              </table>
-              <button type='submit' name='clear_cart' class='clear-cart-button'>Borrar carrito</button>
-              </form>";
+            <td colspan='3'>Total</td>
+            <td>$ " . number_format($total, 2) . "</td>
+            <td></td>
+          </tr>
+          </table>
+          </form>";
 
-        // Formulario para enviar correo de confirmación (separado de la acción de eliminar o borrar carrito)
-        echo "<form method='POST'>
-                <button type='submit' name='send_confirmation_email' class='clear-cart-button'>Enviar correo de confirmación</button>
-              </form>";
+        // Botón de PayPal
+        echo "<form action='https://www.paypal.com/cgi-bin/webscr' method='post' target='_blank'>
+            <!-- Parámetros requeridos -->
+            <input type='hidden' name='cmd' value='_xclick'>
+            <input type='hidden' name='business' value='tu-correo-paypal@example.com'>
+            <input type='hidden' name='item_name' value='Compra en Carrito'>
+            <input type='hidden' name='amount' value='" . number_format($total, 2, '.', '') . "'>
+            <input type='hidden' name='currency_code' value='USD'>
+            <input type='hidden' name='return' value='https://tu-dominio.com/gracias.php'>
+            <input type='hidden' name='cancel_return' value='https://tu-dominio.com/cancelado.php'>
+
+            <!-- Botón de PayPal -->
+            <button type='submit' class='enviar-pago-confirmacion'>Pagar con PayPal</button>
+          </form>";
     }
     ?>
 </body>
