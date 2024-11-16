@@ -1,3 +1,8 @@
+<?php
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -142,6 +147,7 @@
             background-color: #e65a5a;
         }
 
+
         .delete-button {
             padding: 8px 12px;
             background-color: #ff6b6b;
@@ -163,11 +169,13 @@
     <?php
     session_start();
 
+    // Asegurarse de que el usuario ha iniciado sesión
     if (!isset($_SESSION['usuario'])) {
         header('Location: index.php');
         exit();
     }
 
+    // Procesar el cierre de sesión
     if (isset($_GET['logout']) && $_GET['logout'] == 'true') {
         session_destroy();
         header('Location: index.php');
@@ -181,20 +189,54 @@
         $delete_id = $_POST['delete_product_id'];
         foreach ($_SESSION['carrito'] as $key => $item) {
             if ($item['id'] == $delete_id) {
-                unset($_SESSION['carrito'][$key]); // Eliminar el producto del carrito
+                unset($_SESSION['carrito'][$key]);
                 break;
             }
         }
-        // Reindexar el array para evitar problemas
-        $_SESSION['carrito'] = array_values($_SESSION['carrito']);
+        $_SESSION['carrito'] = array_values($_SESSION['carrito']); // Reindexar el array
     }
 
-    // Limpiar el carrito si el botón de borrar es presionado
+    // Borrar el carrito completo
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['clear_cart'])) {
-        $_SESSION['carrito'] = [];
+        unset($_SESSION['carrito']);
     }
 
+    // Enviar correo de confirmación
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['send_confirmation_email'])) {
+        require 'C:\xampp\htdocs\repo\vendor\phpmailer\phpmailer\src\Exception.php';
+        require 'C:\xampp\htdocs\repo\vendor\phpmailer\phpmailer\src\PHPMailer.php';
+        require 'C:\xampp\htdocs\repo\vendor\phpmailer\phpmailer\src\SMTP.php';
+
+        $mail = new PHPMailer(true);
+        try {
+            // Configuración SMTP
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'dwesad001@gmail.com'; // Cambia a tu correo
+            $mail->Password = 'fosj djcg qeeo pnpw';       // Cambia a tu contraseña o token de aplicación
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+
+            // Configuración del correo
+            $mail->setFrom('dwesad001@gmail.com', 'Carrito de Compras');
+            $mail->addAddress('julenalonso6@gmail.com'); // Correo de destino
+            $mail->Subject = 'Confirmación de compra';
+            $mail->Body = "Hola $usuario, esta es una confirmación de que tu carrito ha sido procesado.";
+
+            // Enviar correo
+            $mail->send();
+            echo "<div style='color: green;'>Correo de confirmación enviado correctamente.</div>";
+        } catch (Exception $e) {
+            echo "<div style='color: red;'>Error al enviar el correo: {$mail->ErrorInfo}</div>";
+        }
+    }
+
+    // Agregar el código del pago de PayPal
     ?>
+
+
+
     <table>
         <tr>
             <th>Usuario: <?php echo htmlspecialchars($usuario); ?></th>
@@ -246,8 +288,13 @@
                 <td></td>
               </tr>
               </table>
-              <button type='submit' name='clear_cart' class='clear-cart-button'>Borrar carrito</button>";
-        echo "</form>";
+              <button type='submit' name='clear_cart' class='clear-cart-button'>Borrar carrito</button>
+              </form>";
+
+        // Formulario para enviar correo de confirmación (separado de la acción de eliminar o borrar carrito)
+        echo "<form method='POST'>
+                <button type='submit' name='send_confirmation_email' class='clear-cart-button'>Enviar correo de confirmación</button>
+              </form>";
     }
     ?>
 </body>
