@@ -1,5 +1,5 @@
 <?php
-require 'vendor/autoload.php';
+require 'C:\xampp\htdocs\repo\repo\Proyecto\vendor\autoload.php';
 
 use PayPalCheckoutSdk\Core\PayPalHttpClient;
 use PayPalCheckoutSdk\Core\SandboxEnvironment;
