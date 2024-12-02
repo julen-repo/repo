@@ -238,8 +238,8 @@ use PayPalCheckoutSdk\Orders\OrdersCreateRequest;
                 'items' => $items
             ]],
             'application_context' => [
-                'return_url' => 'http://localhost/tu-proyecto/pago_completado.php',
-                'cancel_url' => 'http://localhost/tu-proyecto/pago_cancelado.php'
+                'return_url' => 'http://localhost/tu-proyecto/gracias.php',
+                'cancel_url' => 'http://localhost/tu-proyecto/cancelado.php'
             ]
         ];
 
