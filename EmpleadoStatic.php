@@ -1,99 +1,78 @@
 <?php
-class Empleado
+require_once("Persona.php");
+
+class Empleado extends Persona
 {
-
-    private Array $telefonos = array();
-
-    private static $sueldoTope = 3333;
+    private array $telefonos = [];
+    private static int $sueldoTope = 3333;
 
     public function __construct(
         protected string $nombre,
         protected string $apellidos,
-        protected int $sueldo = 1000,
+        protected string $edad,
+        protected int $sueldo = 1000
     ) {
-        $this->nombre = $nombre;
-        $this->apellidos = $apellidos;
+        parent::__construct($nombre, $edad, $apellidos);
+    }
+
+    public function setSueldo(int $sueldo): void
+    {
         $this->sueldo = $sueldo;
     }
 
-    public function setSueldo(int $suel)
+    public static function setSueldoTope(int $sueldoTope): void
     {
-        $this->sueldo = $suel;
+        self::$sueldoTope = $sueldoTope;
     }
 
-    public function setSueldoTope($sueldoTope): void
-    {
-        $this->sueldoTope = $sueldoTope;
-    }
-
-    public function getNombre(): string
-    {
-        return $this->nombre;
-    }
-
-    public function getApellidos(): string
-    {
-        return $this->apellidos;
-    }
-
-    public function getSueldo(): string
+    public function getSueldo(): int
     {
         return $this->sueldo;
     }
 
-    public function getSueldoTope(): string
+    public static function getSueldoTope(): int
     {
-        return $this->sueldoTope;
+        return self::$sueldoTope;
     }
 
-    public function getNombreCompleto(): string
-    {
-        return $this->nombre . " " .  $this->apellidos;
-    }
     public function debePagarImpuestos(): bool
     {
-        return ($this->sueldo > $this->getSueldoTope());
+        return $this->sueldo > self::$sueldoTope && $this->edad > 21;
     }
 
-    public function anyadirTelefono(int $telefono) : void {
-        array_push($this->telefonos, $telefono);
+    public function anyadirTelefono(int $telefono): void
+    {
+        $this->telefonos[] = $telefono;
     }
 
-    public function listarTelefonos() : string {
-        $tlfs = "";
-        for ($i = 0; $i < count($this->telefonos); $i++) {
-            //echo $this->telefonos[$i];
-            $tlfs = $tlfs . $this->telefonos[$i];
-            if ($i != count($this->telefonos) - 1){
-                $tlfs = $tlfs . ", ";
-                //echo ', ';
-            }
-        }
-        return $tlfs;
+    public function listarTelefonos(): string
+    {
+        return implode(", ", $this->telefonos);
     }
 
-    public function vaciarTelefonos() : void {
-        unset($this->telefonos);
-        $this->telefonos = array();
+    public function vaciarTelefonos(): void
+    {
+        $this->telefonos = [];
     }
 }
 
-function toHtml(Empleado $emp) : void {
+function toHtml(Empleado $emp): void
+{
     echo '<p><ul>';
-
-    echo '<li>' . $emp->getNombreCompleto() . '</li>';
-    echo '<li>' . $emp->getSueldo() . '</li>';
-    echo '<li>' . $emp->listarTelefonos() . '</li>';
-
+    echo '<li>Nombre: ' . $emp->getNombreCompleto() . '</li>';
+    echo '<li>Edad: ' . $emp->getEdad() . '</li>';
+    echo '<li>Sueldo: ' . $emp->getSueldo() . '</li>';
+    echo '<li>Teléfonos: ' . $emp->listarTelefonos() . '</li>';
     echo '</ul></p>';
-    
 }
 
-$empleado = new Empleado('Pedro', 'Buenavista López', 4000);
+// Creación del empleado
+$empleado = new Empleado('Pedro', 'Buenavista López', '22', 4000);
 $empleado->anyadirTelefono(999);
 $empleado->anyadirTelefono(998);
 $empleado->anyadirTelefono(997);
 $empleado->anyadirTelefono(996);
+
 echo '<br>';
+echo $empleado->debePagarImpuestos() ? 'Debe pagar impuestos' : 'No debe pagar impuestos';
 toHtml($empleado);
-?>
