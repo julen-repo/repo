@@ -54,6 +54,11 @@ class Empleado extends Persona
     {
         $this->telefonos = [];
     }
+    public function __toString(): string
+    {
+        $telefonos = $this->listarTelefonos();
+        return "Empleado: {$this->nombre} {$this->apellidos}, Edad: {$this->edad}, Sueldo: {$this->sueldo}, Teléfonos: {$telefonos}";
+    }
 }
 
 function toHtml(Empleado $emp): void
@@ -76,3 +81,4 @@ $empleado->anyadirTelefono(996);
 echo '<br>';
 echo $empleado->debePagarImpuestos() ? 'Debe pagar impuestos' : 'No debe pagar impuestos';
 toHtml($empleado);
+echo $empleado;
