@@ -12,16 +12,43 @@ class  Cliente
         $this->nombre = $nombre;
         $this->numero = $numero;
         $this->soportesAlquilados = [];
-        $this->numeroSoportesAlquilados = [];
+        $this->numeroSoportesAlquilados = count($this->soportesAlquilados);
         $this->maxAlquilerConcurrente = 10;
     }
-    public function muestraResumen()
+    public function alquilar(Soporte $soporte)
     {
-        echo "Titulo: " . $this->titulo;
-        echo "Precio: " . $this->precio;
-        echo "Numero: " . $this->numero;
-        echo "Consolas: " . implode(",", $this->consola);
-        echo "Minimo jugadores: " . $this->minNumJugadores;
-        echo "Maximo jugadores: " . $this->maxNumJugadores;
+        array_push($this->soportesAlquilados, $soporte);
+    }
+
+    public function tieneAlquilado(Soporte $soporte)
+    {
+        $indice = array_search($soporte, $this->soportesAlquilados);
+
+        if ($indice !== false) {
+            return $indice;
+        }
+        return false;
+    }
+    public function devolver(Soporte $soporte)
+    {
+        $indice = $this->tieneAlquilado($soporte);
+
+        if ($indice !== false) {
+            unset($this->soportesAlquilados[$indice]);
+            $this->soportesAlquilados = array_values($this->soportesAlquilados);
+            $this->numeroSoportesAlquilados = count($this->soportesAlquilados);
+            return true;
+        }
+        return false;
+    }
+    public function listaAlquileres()
+    {
+        echo "Soportes alquilados: ".implode(",", $this->soportesAlquilados);
+    }
+    public function muestraResumen(){
+        echo "Nombre: ".$this->nombre;
+        echo "Numero: ".$this->numero;
+        echo "Maximos alquileres: ".$this->numeroSoportesAlquilados;
+        $this->listaAlquileres();
     }
 }
