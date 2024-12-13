@@ -10,6 +10,9 @@ class Soporte
         $this->numero = $numero;
         $this->precio = $precio;
     }
+    public function getTitulo(){
+        return $this->titulo;
+    }
     public function getPrecio(){
         return $this->precio;
     }
