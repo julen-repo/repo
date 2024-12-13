@@ -49,8 +49,25 @@ class  Videoclub
 
         echo "Soportes alquilados: " . implode(", ", $todosProductos) . "\n";
     }
-    public function alquilarSocioProducto(Cliente $cliente,object $producto){
-        $clienteExiste = array_search($cliente, $this->socios);
-        $productoExiste = array_search($producto, $this->productos);
+    public function alquilarSocioProducto(Cliente $cliente, Soporte $producto)
+    {
+        $clienteExiste = array_search($cliente, $this->socios, true);
+        $productoExiste = array_search($producto, $this->productos, true);
+
+        if ($clienteExiste !== false && $productoExiste !== false) {
+            if ($cliente->tieneAlquilado($producto) === false) {
+                $cliente->alquilar($producto);
+                echo "El producto '{$producto->getTitulo()}' ha sido alquilado al cliente '{$cliente->getNombre()}'.\n";
+            } else {
+                echo "El cliente ya tiene alquilado este producto.\n";
+            }
+        } else {
+            if ($clienteExiste === false) {
+                echo "El cliente no existe en la lista de socios.\n";
+            }
+            if ($productoExiste === false) {
+                echo "El producto no existe en la lista de productos.\n";
+            }
+        }
     }
 }

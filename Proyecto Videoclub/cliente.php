@@ -29,6 +29,10 @@ class Cliente
         }
     }
 
+    public function getNombre(){
+        return $this->nombre;
+    }
+
     public function tieneAlquilado(Soporte $soporte)
     {
         $indice = array_search($soporte, $this->soportesAlquilados);
