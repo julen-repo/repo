@@ -20,36 +20,37 @@ class  Videoclub
         array_push($this->productos, $soporte);
     }
 
-    public function tieneAlquilado(Soporte $soporte)
+    public function incluirDvd(Dvd $dvd)
     {
-        $indice = array_search($soporte, $this->soportesAlquilados);
+        array_push($this->productos, $dvd);
+    }
+    public function incluirCintaVideo(CintaVideo $cinta)
+    {
+        array_push($this->productos, $cinta);
+    }
+    public function incluirJuego(Juego $juego)
+    {
+        array_push($this->productos, $juego);
+    }
+    public function incluirSocio(Cliente $cliente){
+        array_push($this->socios, $cliente);
+    }
+    public function listarSocios(){
+        $todosSocios = array_map(function ($socio) {
+            return $socio->getTitulo();
+        }, $this->socios);
 
-        if ($indice !== false) {
-            return $indice;
-        }
-        return false;
+        echo "Soportes alquilados: " . implode(", ", $todosSocios) . "\n";
     }
-    public function devolver(Soporte $soporte)
-    {
-        $indice = $this->tieneAlquilado($soporte);
+    public function listarProductos(){
+        $todosProductos = array_map(function ($producto) {
+            return $producto->getTitulo();
+        }, $this->productos);
 
-        if ($indice !== false) {
-            unset($this->soportesAlquilados[$indice]);
-            $this->soportesAlquilados = array_values($this->soportesAlquilados);
-            $this->numeroSoportesAlquilados = count($this->soportesAlquilados);
-            return true;
-        }
-        return false;
+        echo "Soportes alquilados: " . implode(", ", $todosProductos) . "\n";
     }
-    public function listaAlquileres()
-    {
-        echo "Soportes alquilados: " . implode(",", $this->soportesAlquilados);
-    }
-    public function muestraResumen()
-    {
-        echo "Nombre: " . $this->nombre;
-        echo "Numero: " . $this->numero;
-        echo "Maximos alquileres: " . $this->numeroSoportesAlquilados;
-        $this->listaAlquileres();
+    public function alquilarSocioProducto(Cliente $cliente,object $producto){
+        $clienteExiste = array_search($cliente, $this->socios);
+        $productoExiste = array_search($producto, $this->productos);
     }
 }
